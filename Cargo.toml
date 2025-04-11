@@ -1,0 +1,11 @@
+[package]
+name = "t490-brightness"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+
+[[bin]]
+edition="2024"
+name="t490-brightness"
+path="src/main.rs"
