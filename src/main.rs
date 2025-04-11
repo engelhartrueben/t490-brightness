@@ -144,17 +144,10 @@ fn construct_brightness(file_name: String) -> Brightness {
     // to get rid of the new line character
     current.pop();
 
-    println!("current: {}", &current);
-
-    let current = current.parse::<i32>().expect(
-        &format!("Unable to parse current brightness. Check {file_name} as it may be corrupted.")
-            .to_string(),
-    );
-
     Brightness {
         file_name,
         file: f,
-        brightness: current,
+        brightness: str_to_i32(&current),
     }
 }
 
