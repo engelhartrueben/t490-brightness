@@ -12,10 +12,10 @@ use std::io::{Read, Result, Write};
  */
 
 // TODO: store this in some system file.
-const BRIGHTNESS_MAX: i32 = 24242;
-const BRIGHTNESS_MIN: i32 = 500;
+// const BRIGHTNESS_MAX: i32 = 24242;
+// const BRIGHTNESS_MIN: i32 = 0;
 // TODO: what if we want to let the user determine the increment?
-const INCREMENT: i32 = 2000;
+// const INCREMENT: i32 = 2000;
 // TODO: what if we want to let the user determine the file?
 // Different generations of think pads / different computers, probable have different files
 const BRIGHTNESS_FILE: &str = "/sys/class/backlight/intel_backlight/brightness";
@@ -28,11 +28,21 @@ struct Brightness {
 }
 
 impl Brightness {
-    pub fn up_brightness(&mut self) -> Result<()> {
-        self.brightness += INCREMENT;
-
-        if self.brightness > BRIGHTNESS_MAX {
-            self.brightness = BRIGHTNESS_MAX;
+    pub fn up_brightness(&mut self, amt: i32, max: Option<&String>) -> Result<()> {
+        self.brightness += amt;
+        println!("{max:?}");
+        // I feel this statment could be reduced in size
+        match max {
+            Some(max) => {
+                // we allow max to start off as a string as other arguments might be a string,
+                // like file names
+                let max = str_to_i32(max);
+                println!("max arg: {max}");
+                if self.brightness > max {
+                    self.brightness = max;
+                }
+            }
+            None => (),
         }
 
         self.flush_and_resize()
@@ -43,11 +53,22 @@ impl Brightness {
         Ok(())
     }
 
-    pub fn down_brightness(&mut self) -> Result<()> {
-        self.brightness -= INCREMENT;
+    pub fn down_brightness(&mut self, amt: i32, min: Option<&String>) -> Result<()> {
+        self.brightness -= amt;
 
-        if self.brightness < BRIGHTNESS_MIN {
-            self.brightness = BRIGHTNESS_MIN;
+        match min {
+            Some(min) => {
+                let min = str_to_i32(min);
+                if self.brightness < min {
+                    self.brightness = min;
+                }
+            }
+            // Is this too much policy? Really
+            None => {
+                if self.brightness < 0 {
+                    self.brightness = 0;
+                }
+            }
         }
 
         self.flush_and_resize()
@@ -89,10 +110,27 @@ impl Brightness {
     }
 }
 
-fn main() {
-    // let mut brightness = construct_brightness(BRIGHTNESS_FILE.to_string());
-
+fn main() -> Result<()> {
     let args = get_arg_pairs().unwrap();
+
+    let file_name: String = match (&args).get("-f") {
+        Some(f) => f.to_string(),
+        None => BRIGHTNESS_FILE.to_string(),
+    };
+
+    let mut brightness = construct_brightness(file_name);
+
+    if (&args).contains_key("-d") {
+        // returns a Result, unser what to do with that at the moment
+        brightness.down_brightness(str_to_i32((&args).get("-d").unwrap()), (&args).get("-mi"))?
+    };
+
+    if (&args).contains_key("-u") {
+        brightness.up_brightness(str_to_i32((&args).get("-u").unwrap()), (&args).get("-ma"))?
+    };
+
+    // If the program makes it to here, do we notify?
+    Ok(())
 
     // match (&args)[1].as_str() {
     //     "-d" => brightness
@@ -179,6 +217,10 @@ fn get_arg_pairs() -> Option<HashMap<String, String>> {
     }
 
     Some(commands)
+}
+
+fn str_to_i32(s: &String) -> i32 {
+    s.parse::<i32>().expect("Unable to parse string to i32")
 }
 
 fn print_help() {
