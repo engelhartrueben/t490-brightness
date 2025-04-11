@@ -11,15 +11,10 @@ use std::io::{Read, Result, Write};
  * in the cmd args.
  */
 
-// TODO: store this in some system file.
-// const BRIGHTNESS_MAX: i32 = 24242;
-// const BRIGHTNESS_MIN: i32 = 0;
-// TODO: what if we want to let the user determine the increment?
-// const INCREMENT: i32 = 2000;
-// TODO: what if we want to let the user determine the file?
 // Different generations of think pads / different computers, probable have different files
+// HOWEVER, I am giving this file root:root access, WE CANNOT LET THIS PROGRAM WRITE TO ANYTHING
+// ELSE. Some polcy required....
 const BRIGHTNESS_FILE: &str = "/sys/class/backlight/intel_backlight/brightness";
-// const BRIGHTNESS_FILE: &str = "/home/ruby/development/t490-brightness/brightness.txt";
 
 struct Brightness {
     file_name: String,
@@ -111,14 +106,14 @@ impl Brightness {
 }
 
 fn main() -> Result<()> {
-    let args = get_arg_pairs().unwrap();
+    let args: HashMap<String, String> = get_arg_pairs().unwrap();
 
-    let file_name: String = match (&args).get("-f") {
-        Some(f) => f.to_string(),
-        None => BRIGHTNESS_FILE.to_string(),
-    };
-
-    let mut brightness = construct_brightness(file_name);
+    // This program used to allow the user to specify the file to change, thinking that other
+    // systems could benefit. HOWEVER, this approach of chaning
+    // /sys/class/backlight/intel_backlight/brightness requires this file to be root:root.
+    // If an arg allowed for the changing of the file, then this file could write an integer to
+    // any file on the machin.
+    let mut brightness: Brightness = construct_brightness(BRIGHTNESS_FILE.to_string());
 
     if (&args).contains_key("-d") {
         // returns a Result, unser what to do with that at the moment
@@ -131,18 +126,6 @@ fn main() -> Result<()> {
 
     // If the program makes it to here, do we notify?
     Ok(())
-
-    // match (&args)[1].as_str() {
-    //     "-d" => brightness
-    //         .down_brightness()
-    //         .expect("Something failed miserably"),
-    //     "-u" => brightness
-    //         .up_brightness()
-    //         .expect("Somethign failed miserably"),
-    //     _ => {
-    //         panic!("Unknown command. -h not unimplemented!");
-    //     }
-    // }
 }
 
 /*
