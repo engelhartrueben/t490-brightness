@@ -1,4 +1,4 @@
-use std::alloc::GlobalAlloc;
+use std::collections::HashMap;
 use std::env;
 use std::fs::{File, OpenOptions};
 use std::io::{Read, Result, Write};
@@ -90,7 +90,7 @@ impl Brightness {
 }
 
 fn main() {
-    let mut brightness = construct_brightness(BRIGHTNESS_FILE.to_string());
+    // let mut brightness = construct_brightness(BRIGHTNESS_FILE.to_string());
 
     let args = get_arg_pairs().unwrap();
 
@@ -138,14 +138,14 @@ fn construct_brightness(file_name: String) -> Brightness {
 }
 
 // returns arg pairs
-fn get_arg_pairs() -> Option<Vec<(String, String)>> {
+fn get_arg_pairs() -> Option<HashMap<String, String>> {
     // vector of args supplied by the cmd
     let args: Vec<String> = env::args().collect();
 
     // tuples of arguments:
     // (-d, 100) = brightness down by 100
     // (-u, 200) = brightness up by 200
-    let mut commands: Vec<(String, String)> = Vec::new();
+    let mut commands: HashMap<String, String> = HashMap::new();
 
     // Is there a better way of handling this? Probably not a panic
     if args.len() <= 1 {
@@ -174,7 +174,8 @@ fn get_arg_pairs() -> Option<Vec<(String, String)>> {
             return None;
         }
 
-        commands.push((arg.to_string(), (&args)[index + 1].to_string()));
+        // commands.add((arg.to_string(), (&args)[index + 1].to_string()));
+        commands.insert(arg.to_string(), (&args)[index + 1].to_string());
     }
 
     Some(commands)
