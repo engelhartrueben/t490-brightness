@@ -15,6 +15,26 @@ struct Brightness {
 }
 
 impl Brightness {
+    fn new(file_name: String) -> Brightness {
+        let mut f = OpenOptions::new()
+            .write(true)
+            .read(true)
+            .open(&file_name)
+            .expect(&format!("Failed to open file: {file_name}"));
+
+        let mut current: String = Default::default();
+        f.read_to_string(&mut current).unwrap();
+
+        // to get rid of the new line character
+        current.pop();
+
+        Brightness {
+            file_name,
+            file: f,
+            brightness: str_to_i32(&current),
+        }
+    }
+
     pub fn up_brightness(&mut self, amt: i32, max: Option<&String>) -> Result<()> {
         self.brightness += amt;
         println!("{max:?}");
@@ -105,7 +125,7 @@ fn main() -> Result<()> {
     // /sys/class/backlight/intel_backlight/brightness requires this file to be root:root.
     // Too dangerous.
 
-    let mut brightness: Brightness = construct_brightness(BRIGHTNESS_FILE.to_string());
+    let mut brightness: Brightness = Brightness::new(BRIGHTNESS_FILE.to_string());
 
     if (&args).contains_key("-d") {
         // returns a Result, unsure what to do with that at the moment
@@ -120,27 +140,6 @@ fn main() -> Result<()> {
     // If the program makes it to here, do we notify considering main should have exited/failed
     // already
     Ok(())
-}
-
-// No constructor is weird
-fn construct_brightness(file_name: String) -> Brightness {
-    let mut f = OpenOptions::new()
-        .write(true)
-        .read(true)
-        .open(&file_name)
-        .expect(&format!("Failed to open file: {file_name}"));
-
-    let mut current: String = Default::default();
-    f.read_to_string(&mut current).unwrap();
-
-    // to get rid of the new line character
-    current.pop();
-
-    Brightness {
-        file_name,
-        file: f,
-        brightness: str_to_i32(&current),
-    }
 }
 
 // returns argument pairs
