@@ -208,10 +208,8 @@ fn print_help() {
             -h              print help message
             -u              increase the brightness (followed by integer)
             -d              decrease the brightness (followed by integer)
-            -f*             the file that determines the brightness of your machine 
-                                ex: On a T490 /sys/class/backlight/intel_backlight/brightness
-            -mi*            the minimum brightness allowed (default 0)
-            -ma*            the maximum brightness allowed (NO DEFAULT)
+            -mi            the minimum brightness allowed (default 0)
+            -ma            the maximum brightness allowed (NO DEFAULT)
                                 ex: On a T490 /sys/class/backlight/intel_backlight/max_brightness
                                 determines the max
             -maf*           the file that determines the max brightness of your machine
