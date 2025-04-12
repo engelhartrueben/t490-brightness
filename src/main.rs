@@ -109,28 +109,28 @@ fn main() -> Result<()> {
     let args: HashMap<String, String> = get_arg_pairs().unwrap();
 
     // This program used to allow the user to specify the file to change, thinking that other
-    // systems could benefit. HOWEVER, this approach of chaning
+    // systems could benefit. HOWEVER, this approach of changing
     // /sys/class/backlight/intel_backlight/brightness requires this file to be root:root.
-    // If an arg allowed for the changing of the file, then this file could write an integer to
-    // any file on the machin.
+    // Too dangerous.
+
     let mut brightness: Brightness = construct_brightness(BRIGHTNESS_FILE.to_string());
 
     if (&args).contains_key("-d") {
-        // returns a Result, unser what to do with that at the moment
+        // returns a Result, unsure what to do with that at the moment
         brightness.down_brightness(str_to_i32((&args).get("-d").unwrap()), (&args).get("-mi"))?
     };
 
     if (&args).contains_key("-u") {
+        // returns a Result, unsure what to do with that at the moment
         brightness.up_brightness(str_to_i32((&args).get("-u").unwrap()), (&args).get("-ma"))?
     };
 
-    // If the program makes it to here, do we notify?
+    // If the program makes it to here, do we notify considering main should have exited/failed
+    // already
     Ok(())
 }
 
-/*
- * No contructor in impl is odd tbh
- */
+// No constructor is weird
 fn construct_brightness(file_name: String) -> Brightness {
     let mut f = OpenOptions::new()
         .write(true)
@@ -151,7 +151,7 @@ fn construct_brightness(file_name: String) -> Brightness {
     }
 }
 
-// returns arg pairs
+// returns argument pairs
 fn get_arg_pairs() -> Option<HashMap<String, String>> {
     // vector of args supplied by the cmd
     let args: Vec<String> = env::args().collect();
@@ -169,7 +169,7 @@ fn get_arg_pairs() -> Option<HashMap<String, String>> {
 
     for (index, arg) in (&args).iter().enumerate() {
         // skip first arg (its the program)
-        // OR if even arg (its the flag argument)
+        // OR even arg (its the flag argument)
         if index == 0 || index % 2 == 0 {
             continue;
         }
@@ -188,7 +188,6 @@ fn get_arg_pairs() -> Option<HashMap<String, String>> {
             return None;
         }
 
-        // commands.add((arg.to_string(), (&args)[index + 1].to_string()));
         commands.insert(arg.to_string(), (&args)[index + 1].to_string());
     }
 
