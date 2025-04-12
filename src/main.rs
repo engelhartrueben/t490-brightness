@@ -3,15 +3,7 @@ use std::env;
 use std::fs::{File, OpenOptions};
 use std::io::{Read, Result, Write};
 
-/*
- * There is too much policy in this program. We should allow the freedom to break
- * things, but allow for cmd args to further control the program.
- *
- * This program is a MECAHNISM to control brightness, and the POLICY is found
- * in the cmd args.
- */
-
-// Different generations of think pads / different computers, probable have different files
+// Different generations of think pads / different computers, probably have different files
 // HOWEVER, I am giving this file root:root access, WE CANNOT LET THIS PROGRAM WRITE TO ANYTHING
 // ELSE. Some polcy required....
 const BRIGHTNESS_FILE: &str = "/sys/class/backlight/intel_backlight/brightness";
