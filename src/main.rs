@@ -19,6 +19,9 @@ fn main() -> Result<()> {
     let mut brightness: brightness::Brightness =
         brightness::Brightness::new(BRIGHTNESS_FILE.to_string());
 
+    // This could obviously be done differently. We should
+    // instead grab all the keys present in the arguments
+    // and iterate thorugh them via a match statement.
     if (&args).contains_key("-d") {
         let amt = match (&args).get("-d") {
             Some(st) => {
