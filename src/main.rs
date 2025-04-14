@@ -123,15 +123,42 @@ fn main() -> Result<()> {
     let mut brightness: Brightness = Brightness::new(BRIGHTNESS_FILE.to_string());
 
     if (&args).contains_key("-d") {
-        match brightness.down_brightness(str_to_i32((&args).get("-d").unwrap()), (&args).get("-mi"))
-        {
+        let amt = match (&args).get("-d") {
+            Some(st) => {
+                // nested match. EW
+                match st.parse::<i32>() {
+                    Err(err) => {
+                        println!("ERROR| Failed to decrease brightness: {err}");
+                        0i32
+                    }
+                    Ok(v) => v,
+                }
+            }
+            None => 0i32,
+        };
+
+        match brightness.down_brightness(amt, (&args).get("-mi")) {
             Err(err) => println!("ERROR| Failed to decrease brightness: {err}"),
             Ok(_) => (),
         };
     };
 
     if (&args).contains_key("-u") {
-        match brightness.up_brightness(str_to_i32((&args).get("-u").unwrap()), (&args).get("-ma")) {
+        let amt = match (&args).get("-u") {
+            Some(st) => {
+                // nested match. EW
+                match st.parse::<i32>() {
+                    Err(err) => {
+                        println!("ERROR| Failed to increase brightness: {err}");
+                        0i32
+                    }
+                    Ok(v) => v,
+                }
+            }
+            None => 0i32,
+        };
+
+        match brightness.up_brightness(amt, (&args).get("-ma")) {
             Err(err) => println!("ERROR| Failed to increase brightness: {err}"),
             Ok(_) => (),
         };
