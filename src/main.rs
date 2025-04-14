@@ -128,7 +128,7 @@ fn main() -> Result<()> {
                 // nested match. EW
                 match st.parse::<i32>() {
                     Err(err) => {
-                        println!("ERROR| Failed to decrease brightness: {err}");
+                        println!("ERROR| Failed to parse brightness arg: {err}");
                         0i32
                     }
                     Ok(v) => v,
@@ -149,7 +149,7 @@ fn main() -> Result<()> {
                 // nested match. EW
                 match st.parse::<i32>() {
                     Err(err) => {
-                        println!("ERROR| Failed to increase brightness: {err}");
+                        println!("ERROR| Failed to parse brightness arg: {err}");
                         0i32
                     }
                     Ok(v) => v,
