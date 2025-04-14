@@ -52,10 +52,9 @@ impl Brightness {
             None => (),
         }
 
-        self.flush_and_resize()
-            .expect("Failed to flush and resize brightness file");
+        self.flush_and_resize()?;
 
-        self.truncate_and_write().expect("Failed to write to file");
+        self.truncate_and_write()?;
 
         Ok(())
     }
@@ -78,10 +77,9 @@ impl Brightness {
             }
         }
 
-        self.flush_and_resize()
-            .expect("Failed to flush and resize brightness file");
+        self.flush_and_resize()?;
 
-        self.truncate_and_write().expect("Faied to write to file");
+        self.truncate_and_write()?;
 
         Ok(())
     }
@@ -89,7 +87,7 @@ impl Brightness {
     // Flush the buffer, and resize to 0.
     // Unsure if resizing is needed as we truncate the file later
     fn flush_and_resize(&mut self) -> Result<()> {
-        self.file.set_len(0).expect("Could not truncate file.");
+        self.file.set_len(0)?;
         self.file.flush()?;
 
         Ok(())
@@ -106,12 +104,9 @@ impl Brightness {
             .write(true)
             .truncate(true)
             .open(&self.file_name)?;
-        // do I need a .expect() here?
 
         // Write the new brighteness to the buffer
-        self.file
-            .write(&self.brightness.to_string().as_bytes())
-            .expect("Could not write to file.");
+        self.file.write(&self.brightness.to_string().as_bytes())?;
 
         Ok(())
     }
@@ -128,13 +123,18 @@ fn main() -> Result<()> {
     let mut brightness: Brightness = Brightness::new(BRIGHTNESS_FILE.to_string());
 
     if (&args).contains_key("-d") {
-        // returns a Result, unsure what to do with that at the moment
-        brightness.down_brightness(str_to_i32((&args).get("-d").unwrap()), (&args).get("-mi"))?
+        match brightness.down_brightness(str_to_i32((&args).get("-d").unwrap()), (&args).get("-mi"))
+        {
+            Err(err) => println!("ERROR| Failed to decrease brightness: {err}"),
+            Ok(_) => (),
+        };
     };
 
     if (&args).contains_key("-u") {
-        // returns a Result, unsure what to do with that at the moment
-        brightness.up_brightness(str_to_i32((&args).get("-u").unwrap()), (&args).get("-ma"))?
+        match brightness.up_brightness(str_to_i32((&args).get("-u").unwrap()), (&args).get("-ma")) {
+            Err(err) => println!("ERROR| Failed to increase brightness: {err}"),
+            Ok(_) => (),
+        };
     };
 
     // If the program makes it to here, do we notify considering main should have exited/failed
