@@ -9,7 +9,7 @@ pub struct Brightness {
 
 impl Brightness {
     // pub or priv?
-    pub fn new(file_name: String) -> Brightness {
+    pub fn new(file_name: String) -> Result<Brightness> {
         let mut f = OpenOptions::new()
             .write(true)
             .read(true)
@@ -17,17 +17,21 @@ impl Brightness {
             .expect(&format!("Failed to open file: {file_name}"));
 
         let mut current: String = Default::default();
-        f.read_to_string(&mut current).unwrap();
+        f.read_to_string(&mut current)?;
 
         // to get rid of the new line character
         current.pop();
 
-        Brightness {
+        // Safe to unwrap as the brightness file "should" be protected
+        // by other systems.
+        let current = current.parse::<i32>().unwrap();
+
+        Ok(Brightness {
             file_name,
             file: f,
             // Dangerous unwrap
-            brightness: (&current).parse::<i32>().unwrap(),
-        }
+            brightness: current,
+        })
     }
 
     pub fn up_brightness(&mut self, amt: i32, max: Option<i32>) -> Result<()> {

@@ -31,8 +31,10 @@ const BRIGHTNESS_FILE: &str = "/sys/class/backlight/intel_backlight/brightness";
 fn main() -> Result<()> {
     let cli = Args::parse();
 
-    let mut brightness: brightness::Brightness =
-        brightness::Brightness::new(BRIGHTNESS_FILE.to_string());
+    let mut brightness = match brightness::Brightness::new(BRIGHTNESS_FILE.to_string()) {
+        Err(err) => panic!("ERROR: {err:?}"),
+        Ok(b) => b,
+    };
 
     if let Some(increase) = cli.increase {
         let max = cli.max;
