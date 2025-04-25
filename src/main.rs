@@ -31,13 +31,6 @@ const BRIGHTNESS_FILE: &str = "/sys/class/backlight/intel_backlight/brightness";
 fn main() -> Result<()> {
     let cli = Args::parse();
 
-    // let args: HashMap<String, String> = get_arg_pairs().unwrap();
-
-    // This program used to allow the user to specify the file to change, thinking that other
-    // systems could benefit. HOWEVER, this approach of changing
-    // /sys/class/backlight/intel_backlight/brightness requires this file to be root:root.
-    // Too dangerous.
-
     let mut brightness: brightness::Brightness =
         brightness::Brightness::new(BRIGHTNESS_FILE.to_string());
 
@@ -61,7 +54,5 @@ fn main() -> Result<()> {
         };
     }
 
-    // If the program makes it to here, do we notify considering main should have exited/failed
-    // already
     Ok(())
 }
