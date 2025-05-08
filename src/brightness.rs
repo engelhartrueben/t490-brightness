@@ -9,7 +9,7 @@ pub struct Brightness {
 
 impl Brightness {
     // pub or priv?
-    pub fn new(file_name: String) -> Brightness {
+    pub fn new(file_name: String) -> Result<Brightness> {
         let mut f = OpenOptions::new()
             .write(true)
             .read(true)
@@ -17,33 +17,30 @@ impl Brightness {
             .expect(&format!("Failed to open file: {file_name}"));
 
         let mut current: String = Default::default();
-        f.read_to_string(&mut current).unwrap();
+        f.read_to_string(&mut current)?;
 
         // to get rid of the new line character
         current.pop();
 
-        Brightness {
+        // Safe to unwrap as the brightness file "should" be protected
+        // by other systems.
+        let current = current.parse::<i32>().unwrap();
+
+        Ok(Brightness {
             file_name,
             file: f,
             // Dangerous unwrap
-            brightness: (&current).parse::<i32>().unwrap(),
-        }
+            brightness: current,
+        })
     }
 
-    pub fn up_brightness(&mut self, amt: i32, max: Option<&String>) -> Result<()> {
+    pub fn up_brightness(&mut self, amt: i32, max: Option<i32>) -> Result<()> {
         self.brightness += amt;
-        println!("{max:?}");
-        // I feel this statment could be reduced in size
-        match max {
-            Some(max) => {
-                // Dangerous unwrap
-                let max = max.parse::<i32>().unwrap();
-                println!("max arg: {max}");
-                if self.brightness > max {
-                    self.brightness = max;
-                }
+
+        if let Some(max) = max {
+            if self.brightness > max {
+                self.brightness = max
             }
-            None => (),
         }
 
         self.flush_and_resize()?;
@@ -53,23 +50,11 @@ impl Brightness {
         Ok(())
     }
 
-    pub fn down_brightness(&mut self, amt: i32, min: Option<&String>) -> Result<()> {
+    pub fn down_brightness(&mut self, amt: i32, min: i32) -> Result<()> {
         self.brightness -= amt;
 
-        match min {
-            Some(min) => {
-                // Dangerous unwrap
-                let min = min.parse::<i32>().unwrap();
-                if self.brightness < min {
-                    self.brightness = min;
-                }
-            }
-            // Is this too much policy? Really
-            None => {
-                if self.brightness < 0 {
-                    self.brightness = 0;
-                }
-            }
+        if self.brightness < min {
+            self.brightness = min;
         }
 
         self.flush_and_resize()?;
